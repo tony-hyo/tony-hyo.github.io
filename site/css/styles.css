@@ -42,9 +42,12 @@
   /* Fine paper grain, tiled. Alpha tops out at 0.16 so it stays subtle. */
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.16'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
+  /* Stronger grain for the card itself, so the paper reads as real stock. */
+  --grain-card: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.2'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
   /* Ivory card stock: grain over a soft highlight over the base colour. */
   --card-stock:
-    var(--grain),
+    var(--grain-card),
     radial-gradient(120% 90% at 30% 20%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 60%),
     linear-gradient(160deg, rgba(255, 252, 245, 0.7), rgba(226, 214, 195, 0.25)),
     var(--card);
@@ -188,7 +191,7 @@ body.is-open .envelope { pointer-events: none; }
   }
 
   .envelope:hover .env-seal {
-    transform: translateY(-14px) scale(0.95) rotate(-8deg);
+    transform: translateY(-14px) scale(0.95) rotate(0deg);
   }
 }
 
@@ -227,7 +230,7 @@ body.is-open .envelope { pointer-events: none; }
   overflow: hidden;
   background: var(--card-stock);
   background-blend-mode: var(--card-stock-blend);
-  border-radius: 2px;
+  border-radius: 5px;
   box-shadow: 0 6px 18px rgba(var(--shadow-ink), 0.18);
   transition: transform 0.8s var(--ease-out) 0.5s;
 }
@@ -383,7 +386,7 @@ body.is-open .env-flap { animation: flap-open 0.7s ease-in-out forwards; }
   width: 68px;
   height: 68px;
   margin: -34px 0 0 -34px;
-  transform: rotate(-8deg);
+  transform: rotate(0deg);
   filter: drop-shadow(0 4px 6px rgba(var(--shadow-ink), 0.3));
   transition: opacity 0.35s ease, transform 0.35s ease;
 }
@@ -397,7 +400,7 @@ body.is-open .env-flap { animation: flap-open 0.7s ease-in-out forwards; }
 
 body.is-open .env-seal {
   opacity: 0;
-  transform: rotate(-8deg) scale(0.6);
+  transform: rotate(0deg) scale(0.6);
 }
 
 .env-address {
@@ -472,10 +475,11 @@ body.is-open .tap-hint {
   overflow: hidden;
   background: var(--card-stock);
   background-blend-mode: var(--card-stock-blend);
-  border-radius: 1px;
+  border-radius: 7px;
   box-shadow:
-    0 40px 70px -40px rgba(var(--shadow-ink), 0.45),
-    0 2px 8px rgba(var(--shadow-ink), 0.06);
+    0 48px 80px -36px rgba(var(--shadow-ink), 0.6),
+    0 14px 30px -14px rgba(var(--shadow-ink), 0.3),
+    0 2px 6px rgba(var(--shadow-ink), 0.1);
   opacity: 0;
   transform: scale(0.94);
   transition:

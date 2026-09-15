@@ -21,13 +21,13 @@ file:///C:/Users/TonyH/repos/WeddingSite/site/index.html?to=Jane%20%26%20John
 Each guest gets the site URL with a `to` parameter:
 
 ```
-https://YOUR-SITE.pages.dev/?to=Jane%20%26%20John%20Smith
+https://tony-hyo.github.io/?to=Jane%20%26%20John%20Smith
 ```
 
 Spreadsheet formula (Google Sheets and Excel), with the name in column A:
 
 ```
-="https://YOUR-SITE.pages.dev/?to="&ENCODEURL(A2)
+="https://tony-hyo.github.io/?to="&ENCODEURL(A2)
 ```
 
 Without the parameter the envelope reads "Friends & Family". Names are
@@ -62,10 +62,12 @@ Canva design. To replace it, export a new transparent image at a 5:7
 ratio (1400 x 1960 works well) and overwrite both files. The earlier
 hand-drawn `blossom-branch.svg` is no longer used and can be deleted.
 
-The wax seal on the envelope is `site/assets/seal.webp` with `seal.png` as
-the fallback, both 320 px versions of the original `new seal.png`. The
-originals (`new seal.png` and the earlier `TH seal.png`) are not referenced
-by the site and can be removed from `assets/`.
+The wax seal on the envelope is `site/assets/seal-v3.webp` with
+`seal-v3.png` as the fallback, both 320 px versions of the v3 seal design.
+The earlier `seal.webp` and `seal.png` (v2) are kept in the folder but not
+referenced. To switch seals, change the two `assets/seal-v3.*` paths in
+`site/index.html`. The full-size originals (`new seal.png`, `TH seal.png`)
+are not referenced by the site and can be removed from `assets/`.
 
 Text on the card is sized in `cqw` units (percent of the card width), so
 it keeps the same proportions on every screen. Positions live in the
@@ -86,22 +88,36 @@ npm test
 Runs Node's built-in test runner against `site/js/invite-logic.js`.
 Requires Node 18 or newer.
 
-## Deploy to Cloudflare Pages
+## Deploy to GitHub Pages
 
-1. Push this repository to GitHub. It can be private.
-2. In the Cloudflare dashboard open Workers & Pages, choose Create, then
-   Pages, then Connect to Git, and pick the repository.
-3. Framework preset: None. Build command: leave empty. Build output
-   directory: `site`.
-4. The project name becomes your address: `https://<name>.pages.dev`.
-5. Put that address in the `og:image` and `og:url` tags in
-   `site/index.html` and push again.
+The workflow in `.github/workflows/pages.yml` publishes the `site` folder
+on every push to `master` or `main`. The site is at
+`https://tony-hyo.github.io/`.
 
-Direct upload alternative: on the Pages page choose Upload assets and drag
-the `site` folder in.
+1. The GitHub repository is `tony-hyo/tony-hyo.github.io`. It must stay
+   public: a free account only gets Pages on public repositories.
+2. The remote URL carries the account name so git signs in as `tony-hyo`
+   even though this machine also holds another GitHub login:
 
-Custom domain: in the Pages project open Custom domains, add the domain,
-and follow the DNS prompt. Cloudflare provisions HTTPS automatically.
+   ```
+   git remote add origin https://tony-hyo@github.com/tony-hyo/tony-hyo.github.io.git
+   git push -u origin master
+   ```
+
+3. In the repository open Settings, then Pages, and set Source to GitHub
+   Actions. Each push then deploys in a minute or two; progress shows
+   under the Actions tab.
+4. If the address ever changes, update the `og:image` and `og:url` tags in
+   `site/index.html`.
+
+Custom domain: in the same Pages settings page add the domain and follow
+the DNS prompt. GitHub provisions HTTPS; tick Enforce HTTPS once the
+certificate is ready.
+
+Alternative host, Cloudflare Pages: connect the repository under Workers &
+Pages with framework preset None, no build command, and build output
+directory `site`. The address becomes `https://<name>.pages.dev`; update
+the two tags above to match.
 
 ## Regenerate the link preview image
 
