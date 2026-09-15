@@ -56,7 +56,7 @@
   /* Envelope flap faces: ivory outside, blush lining inside. */
   --flap-face:
     var(--grain),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0) 45%, rgba(58, 42, 34, 0.06) 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.08) 55%, rgba(58, 42, 34, 0.025) 100%),
     var(--env-paper);
   --flap-liner:
     var(--grain),
@@ -191,10 +191,8 @@ body.is-open .envelope { pointer-events: none; }
   transform: rotateX(26deg);
 }
 
-.envelope.is-pressed .env-flap-shadow {
-  opacity: 0.4;
-  transform: translateY(12px);
-}
+.envelope.is-pressed .env-flap-shadow { opacity: 0.55; }
+.envelope.is-pressed .env-flap-shadow .env-blur { transform: translateY(8px); }
 
 .envelope.is-pressed .env-seal {
   transform: translateY(-14px) scale(0.95) rotate(0deg);
@@ -211,10 +209,8 @@ body.is-open .envelope { pointer-events: none; }
 
   .envelope:hover .env-flap { transform: rotateX(26deg); }
 
-  .envelope:hover .env-flap-shadow {
-    opacity: 0.4;
-    transform: translateY(12px);
-  }
+  .envelope:hover .env-flap-shadow { opacity: 0.55; }
+  .envelope:hover .env-flap-shadow .env-blur { transform: translateY(8px); }
 
   .envelope:hover .env-seal {
     transform: translateY(-14px) scale(0.95) rotate(0deg);
@@ -239,7 +235,7 @@ body.is-open .envelope { pointer-events: none; }
 }
 
 .envelope.is-dragging .env-flap-shadow {
-  opacity: calc(0.4 * (1 - var(--drag, 0)));
+  opacity: calc(0.55 * (1 - var(--drag, 0)));
   transition: none;
 }
 
@@ -253,10 +249,10 @@ body.is-open .envelope.drag-opened .env-flap {
 }
 
 .env-back,
-.env-pocket,
-.env-front,
+.env-side,
+.env-bottom,
+.env-shadow,
 .env-flap,
-.env-flap-shadow,
 .card-mini {
   position: absolute;
   display: block;
@@ -338,64 +334,79 @@ body.is-open .card-mini { transform: translateY(-72%); }
 }
 
 /*
- * The pocket is the front of the envelope: two side panels meeting the
- * bottom panel in a V. The wrapper carries a drop shadow that follows the
- * clipped V edge, which a clip-path element cannot cast on its own.
+ * The front of the envelope is built the way one is folded: two side
+ * panels underneath, the bottom panel folded over them, and the flap over
+ * everything. Each upper layer casts a soft shadow onto the layer beneath,
+ * and the light comes from the top-left.
  */
-.env-pocket {
+.env-side {
   inset: 0;
   z-index: 3;
-  filter:
-    drop-shadow(0 -1px 1px rgba(var(--shadow-ink), 0.14))
-    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.5));
-}
-
-.env-front {
-  inset: 0;
   background:
     var(--grain),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 40%, rgba(58, 42, 34, 0.05) 100%),
+    var(--side-light),
     var(--env-paper);
   background-blend-mode: multiply, normal, normal;
-  clip-path: polygon(0 0, 50% 52%, 100% 0, 100% 100%, 0 100%);
   border-radius: 4px;
 }
 
-/* Side panels catch the light differently, so each gets its own shading. */
-.env-front::before,
-.env-front::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.5), rgba(58, 42, 34, 0.05));
+.env-side-l {
   clip-path: polygon(0 0, 50% 52%, 0 100%);
+  --side-light: linear-gradient(to bottom right, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1) 45%, rgba(var(--shadow-ink), 0.05));
 }
 
-.env-front::after {
-  background: linear-gradient(to bottom left, rgba(255, 255, 255, 0.2), rgba(58, 42, 34, 0.09));
+.env-side-r {
   clip-path: polygon(100% 0, 50% 52%, 100% 100%);
+  --side-light: linear-gradient(to bottom left, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 45%, rgba(var(--shadow-ink), 0.09));
 }
 
-/* The bottom panel, lit from above so its top edge reads as a fold. */
-.env-pocket::after {
+.env-bottom {
+  inset: 0;
+  z-index: 3;
+  background:
+    var(--grain),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.06) 50%, rgba(var(--shadow-ink), 0.03) 100%),
+    var(--env-paper);
+  background-blend-mode: multiply, normal, normal;
+  clip-path: polygon(0 100%, 50% 52%, 100% 100%);
+  border-radius: 4px;
+}
+
+/*
+ * Soft shadows. A clip-path shape cannot blur its own edge, so the shape
+ * lives on an inner pseudo-element, its parent blurs it, and the outer
+ * wrapper clips the result to the envelope so nothing spills past the edge.
+ */
+.env-shadow {
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  border-radius: 4px;
+  transition: opacity 0.3s ease;
+}
+
+.env-blur {
+  position: absolute;
+  inset: -30px;
+  filter: blur(10px);
+  transition: transform 0.5s ease;
+}
+
+.env-blur::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(58, 42, 34, 0.1), rgba(255, 255, 255, 0.35) 40%, rgba(255, 255, 255, 0) 100%);
-  clip-path: polygon(0 100%, 50% 52%, 100% 100%);
+  inset: 30px;
+  background: rgba(var(--shadow-ink), 0.22);
 }
 
-/* Soft shadow the closed flap casts onto the pocket. */
-.env-flap-shadow {
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 57%;
-  z-index: 3;
-  background: linear-gradient(180deg, rgba(58, 42, 34, 0) 55%, rgba(58, 42, 34, 0.16) 100%);
-  clip-path: polygon(-2% 0, 102% 0, 50% 100%);
+.env-bottom-shadow .env-blur::before {
+  transform: translateY(3px);
+  clip-path: polygon(-4% 104%, 50% 50%, 104% 104%);
+}
+
+.env-flap-shadow .env-blur::before {
   transform: translateY(5px);
-  transition: opacity 0.3s ease, transform 0.5s ease;
+  clip-path: polygon(-4% -4%, 104% -4%, 50% 56%);
 }
 
 body.is-open .env-flap-shadow { opacity: 0; }
@@ -415,12 +426,15 @@ body.is-open .env-flap-shadow { opacity: 0; }
   transition: transform 0.5s ease;
 }
 
-/* A faint crease along the flap's two lower edges so it reads as a fold. */
-.env-flap::after {
+/* A thin highlight along the fold at the top of the flap. */
+.env-flap::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 60%, rgba(var(--shadow-ink), 0.09) 100%);
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.45);
 }
 
 body.is-open .env-flap { animation: flap-open 0.7s ease-in-out forwards; }
