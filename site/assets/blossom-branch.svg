@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+  <defs>
+    <symbol id="b" viewBox="-12 -12 24 24">
+      <g fill="currentColor">
+        <path d="M0 0C-3.6-2.8-5.8-8.6 0-9.6 5.8-8.6 3.6-2.8 0 0Z"/>
+        <path d="M0 0C-3.6-2.8-5.8-8.6 0-9.6 5.8-8.6 3.6-2.8 0 0Z" transform="rotate(72)"/>
+        <path d="M0 0C-3.6-2.8-5.8-8.6 0-9.6 5.8-8.6 3.6-2.8 0 0Z" transform="rotate(144)"/>
+        <path d="M0 0C-3.6-2.8-5.8-8.6 0-9.6 5.8-8.6 3.6-2.8 0 0Z" transform="rotate(216)"/>
+        <path d="M0 0C-3.6-2.8-5.8-8.6 0-9.6 5.8-8.6 3.6-2.8 0 0Z" transform="rotate(288)"/>
+      </g>
+      <g stroke="#B8365E" stroke-width="0.6" stroke-linecap="round" fill="none">
+        <path d="M0 0L2.4-3.4M0 0L-2.6-3.1M0 0L3.4 1.4M0 0L-3.3 1.8M0 0L0.4 3.9"/>
+      </g>
+      <circle r="1.5" fill="#B8365E"/>
+    </symbol>
+    <symbol id="bud" viewBox="-6 -6 12 12">
+      <ellipse rx="3.1" ry="4.2" fill="currentColor"/>
+      <path d="M-2.4 2.4Q0 5.6 2.4 2.4" fill="none" stroke="#4A3228" stroke-width="0.9" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="p" viewBox="0 0 20 20">
+      <path d="M10 1C15 4 19 9 10 19 1 9 5 4 10 1Z" fill="currentColor"/>
+    </symbol>
+  </defs>
+
+  <!-- branches: drawn wide to thin for a tapered look -->
+  <g fill="none" stroke="#4A3228" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M404 32C372 44 340 66 306 88" stroke-width="6"/>
+    <path d="M306 88C278 104 246 120 214 132" stroke-width="4"/>
+    <path d="M214 132C190 140 166 146 144 154" stroke-width="2.6"/>
+    <path d="M144 154C130 158 118 164 108 172" stroke-width="1.6"/>
+
+    <path d="M334 70C318 58 302 46 284 40" stroke-width="3"/>
+    <path d="M284 40C272 36 262 32 250 26" stroke-width="1.8"/>
+
+    <path d="M368 56C362 70 354 86 344 100" stroke-width="2.4"/>
+    <path d="M344 100C340 106 336 112 330 118" stroke-width="1.4"/>
+
+    <path d="M252 116C246 134 240 152 232 170" stroke-width="3"/>
+    <path d="M232 170C226 186 220 200 210 214" stroke-width="1.8"/>
+    <path d="M238 156C246 162 254 170 258 180" stroke-width="1.3"/>
+
+    <path d="M200 136C194 128 188 120 180 112" stroke-width="1.5"/>
+    <path d="M166 148C162 160 158 172 152 184" stroke-width="1.4"/>
+  </g>
+
+  <!-- blossoms -->
+  <use href="#b" x="-14" y="-14" width="28" height="28" transform="translate(348 62) rotate(18)" color="#F4C6D3"/>
+  <use href="#b" x="-16" y="-16" width="32" height="32" transform="translate(316 90) rotate(-12)" color="#E99BB4"/>
+  <use href="#b" x="-12" y="-12" width="24" height="24" transform="translate(298 60) rotate(40)" color="#F4C6D3"/>
+  <use href="#b" x="-11" y="-11" width="22" height="22" transform="translate(272 42) rotate(8)" color="#E99BB4"/>
+  <use href="#b" x="-9" y="-9" width="18" height="18" transform="translate(254 26) rotate(-30)" color="#F4C6D3"/>
+  <use href="#b" x="-13" y="-13" width="26" height="26" transform="translate(360 96) rotate(66)" color="#E99BB4"/>
+  <use href="#b" x="-11" y="-11" width="22" height="22" transform="translate(334 114) rotate(-20)" color="#F4C6D3"/>
+  <use href="#b" x="-15" y="-15" width="30" height="30" transform="translate(284 108) rotate(24)" color="#F4C6D3"/>
+  <use href="#b" x="-13" y="-13" width="26" height="26" transform="translate(252 118) rotate(-8)" color="#E99BB4"/>
+  <use href="#b" x="-12" y="-12" width="24" height="24" transform="translate(228 140) rotate(52)" color="#F4C6D3"/>
+  <use href="#b" x="-14" y="-14" width="28" height="28" transform="translate(240 166) rotate(14)" color="#E99BB4"/>
+  <use href="#b" x="-11" y="-11" width="22" height="22" transform="translate(222 192) rotate(-40)" color="#F4C6D3"/>
+  <use href="#b" x="-9" y="-9" width="18" height="18" transform="translate(208 210) rotate(30)" color="#E99BB4"/>
+  <use href="#b" x="-10" y="-10" width="20" height="20" transform="translate(186 120) rotate(-16)" color="#E99BB4"/>
+  <use href="#b" x="-11" y="-11" width="22" height="22" transform="translate(170 160) rotate(70)" color="#F4C6D3"/>
+  <use href="#b" x="-9" y="-9" width="18" height="18" transform="translate(154 180) rotate(12)" color="#E99BB4"/>
+  <use href="#b" x="-11" y="-11" width="22" height="22" transform="translate(382 42) rotate(-24)" color="#F4C6D3"/>
+  <use href="#b" x="-10" y="-10" width="20" height="20" transform="translate(392 72) rotate(48)" color="#E99BB4"/>
+  <use href="#b" x="-8" y="-8" width="16" height="16" transform="translate(200 150) rotate(-60)" color="#F4C6D3"/>
+  <use href="#b" x="-10" y="-10" width="20" height="20" transform="translate(300 124) rotate(36)" color="#E99BB4"/>
+  <use href="#b" x="-9" y="-9" width="18" height="18" transform="translate(258 94) rotate(-48)" color="#F4C6D3"/>
+  <use href="#b" x="-9" y="-9" width="18" height="18" transform="translate(120 166) rotate(20)" color="#F4C6D3"/>
+  <use href="#b" x="-7" y="-7" width="14" height="14" transform="translate(108 176) rotate(-10)" color="#E99BB4"/>
+  <use href="#b" x="-8" y="-8" width="16" height="16" transform="translate(258 182) rotate(58)" color="#F4C6D3"/>
+  <use href="#b" x="-8" y="-8" width="16" height="16" transform="translate(330 120) rotate(-70)" color="#E99BB4"/>
+
+  <!-- buds -->
+  <use href="#bud" x="-6" y="-6" width="12" height="12" transform="translate(264 52) rotate(-30)" color="#D6608A"/>
+  <use href="#bud" x="-6" y="-6" width="12" height="12" transform="translate(180 110) rotate(-50)" color="#D6608A"/>
+  <use href="#bud" x="-6" y="-6" width="12" height="12" transform="translate(152 188) rotate(20)" color="#E99BB4"/>
+  <use href="#bud" x="-6" y="-6" width="12" height="12" transform="translate(328 122) rotate(40)" color="#D6608A"/>
+  <use href="#bud" x="-6" y="-6" width="12" height="12" transform="translate(210 216) rotate(30)" color="#E99BB4"/>
+  <use href="#bud" x="-5" y="-5" width="10" height="10" transform="translate(248 28) rotate(-60)" color="#D6608A"/>
+
+  <!-- loose petals -->
+  <use href="#p" x="-6" y="-6" width="12" height="12" transform="translate(124 64) rotate(30)" color="#F4C6D3"/>
+  <use href="#p" x="-5" y="-5" width="10" height="10" transform="translate(96 112) rotate(-40)" color="#E99BB4"/>
+  <use href="#p" x="-6" y="-6" width="12" height="12" transform="translate(142 214) rotate(70)" color="#F4C6D3"/>
+  <use href="#p" x="-5" y="-5" width="10" height="10" transform="translate(64 160) rotate(15)" color="#F4C6D3"/>
+  <use href="#p" x="-6" y="-6" width="12" height="12" transform="translate(232 244) rotate(-25)" color="#E99BB4"/>
+  <use href="#p" x="-5" y="-5" width="10" height="10" transform="translate(302 172) rotate(50)" color="#F4C6D3"/>
+  <use href="#p" x="-5" y="-5" width="10" height="10" transform="translate(190 252) rotate(-70)" color="#F4C6D3"/>
+  <use href="#p" x="-4" y="-4" width="8" height="8" transform="translate(160 90) rotate(45)" color="#E99BB4"/>
+  <use href="#p" x="-4" y="-4" width="8" height="8" transform="translate(80 210) rotate(-15)" color="#F4C6D3"/>
+</svg>

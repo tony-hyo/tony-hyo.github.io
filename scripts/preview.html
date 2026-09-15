@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Preview image source</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Bellefair&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'BD Script';
+      src: url('../site/assets/fonts/BDScript-Regular.woff') format('woff');
+    }
+    html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+    body {
+      position: relative;
+      background: #EDE7DB;
+      color: #3A2A22;
+      font-family: 'Cormorant Garamond', serif;
+      font-variant-numeric: lining-nums;
+    }
+    .card {
+      position: absolute;
+      inset: 36px;
+      overflow: hidden;
+      background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.16'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+        radial-gradient(120% 90% at 30% 20%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 60%),
+        linear-gradient(160deg, rgba(255, 252, 245, 0.7), rgba(226, 214, 195, 0.25)),
+        #F6F1E7;
+      background-blend-mode: multiply, normal, normal, normal;
+      box-shadow: 0 30px 60px -35px rgba(58, 42, 34, 0.35), 0 2px 8px rgba(58, 42, 34, 0.05);
+    }
+    /* Portrait artwork, cropped to its top so the branch fills the right side. */
+    .art {
+      position: absolute;
+      top: 0;
+      right: -30px;
+      height: 130%;
+      width: auto;
+    }
+    .text {
+      position: absolute;
+      left: 96px;
+      top: 70px;
+    }
+    .headline { margin: 0; font-weight: 300; font-size: 82px; letter-spacing: 0.4em; line-height: 1; text-transform: uppercase; }
+    .the { display: block; margin: 4px 0 6px 10px; font-family: 'BD Script', cursive; font-size: 50px; line-height: 1; text-transform: none; letter-spacing: 0; }
+    .caps { margin: 0; font-family: 'Bellefair', serif; font-size: 20px; letter-spacing: 0.17em; line-height: 1.9; text-transform: uppercase; }
+    .caps.names { margin-top: 42px; }
+    .date { margin: 14px 0 0; font-weight: 300; font-size: 80px; letter-spacing: 0.1em; line-height: 1; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img class="art" src="../site/assets/blossoms.png" alt="">
+    <div class="text">
+      <h1 class="headline">Save<span class="the">the</span>Date</h1>
+      <p class="caps names">Tony and Hyo are getting married</p>
+      <p class="date">04.11.27</p>
+      <p class="caps" style="margin-top:34px">Sunday, April 11, 2027 · Seoul, South Korea</p>
+    </div>
+  </div>
+</body>
+</html>

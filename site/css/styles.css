@@ -1,0 +1,797 @@
+/* ==========================================================================
+   Wedding invitation
+   1. Tokens   2. Base   3. Hero and envelope   4. Card   5. Details
+   6. Petals   7. Motion preferences
+   ========================================================================== */
+
+/* 0. Fonts -------------------------------------------------------------- */
+
+/* The handwriting face from the original design, served from this site. */
+@font-face {
+  font-family: 'BD Script';
+  src: url('../assets/fonts/BDScript-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 1. Tokens ------------------------------------------------------------- */
+
+:root {
+  --paper: #EDE7DB;          /* linen page behind the card */
+  --card: #F6F1E7;           /* ivory card stock */
+  --env-paper: #EFE8DB;      /* envelope stock: a shade deeper than the card */
+  --env-paper-deep: #E3DACA;
+  --env-inside: #DCD1BF;     /* the inside of the envelope, in shadow */
+  --liner: #EFCAD6;          /* blush lining under the flap */
+  --ink: #3A2A22;
+  --ink-soft: #7A6A60;
+  --blossom: #E99BB4;
+  --blossom-light: #F4C6D3;
+  --blossom-deep: #D6608A;
+
+  --font-serif: 'Cormorant Garamond', 'Cormorant', 'Garamond', 'Times New Roman', serif;
+  --font-caps: 'Bellefair', 'Cormorant Garamond', 'Garamond', serif;
+  --font-script: 'BD Script', 'Segoe Script', cursive;
+
+  --card-w: min(92vw, 480px);
+  --env-w: min(86vw, 410px);
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --shadow-ink: 58, 42, 34;
+
+  /* Fine paper grain, tiled. Alpha tops out at 0.16 so it stays subtle. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.16'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+  /* Ivory card stock: grain over a soft highlight over the base colour. */
+  --card-stock:
+    var(--grain),
+    radial-gradient(120% 90% at 30% 20%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 60%),
+    linear-gradient(160deg, rgba(255, 252, 245, 0.7), rgba(226, 214, 195, 0.25)),
+    var(--card);
+  --card-stock-blend: multiply, normal, normal, normal;
+
+  /* Envelope flap faces: ivory outside, blush lining inside. */
+  --flap-face:
+    var(--grain),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0) 45%, rgba(58, 42, 34, 0.06) 100%),
+    var(--env-paper);
+  --flap-liner:
+    var(--grain),
+    linear-gradient(180deg, rgba(58, 42, 34, 0.08), rgba(255, 255, 255, 0.15) 70%),
+    var(--liner);
+}
+
+/* 2. Base --------------------------------------------------------------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  background: var(--paper);
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 1.5;
+  font-variant-numeric: lining-nums;
+  overflow-x: hidden;
+}
+
+/* Linen grain across the whole page, behind everything. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: var(--grain);
+  opacity: 0.6;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* Scroll stays locked until the envelope has been opened. */
+html.js body.is-closed {
+  overflow: hidden;
+  height: 100svh;
+}
+
+img { display: block; max-width: 100%; }
+
+/* 3. Hero and envelope -------------------------------------------------- */
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 3rem 0 4.5rem;
+}
+
+.envelope-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.4rem;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.55), transparent 38rem),
+    var(--paper);
+  transition:
+    opacity 0.5s ease 1.2s,
+    transform 0.5s ease 1.2s,
+    visibility 0s linear 1.7s;
+}
+
+body.is-open .envelope-scene {
+  opacity: 0;
+  transform: translateY(24px);
+  visibility: hidden;
+}
+
+html.no-js .envelope-scene { display: none; }
+
+.envelope {
+  position: relative;
+  width: var(--env-w);
+  aspect-ratio: 1.45;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  perspective: 1200px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.envelope:focus-visible {
+  outline: 2px solid var(--blossom-deep);
+  outline-offset: 12px;
+  border-radius: 6px;
+}
+
+body.is-open .envelope { pointer-events: none; }
+
+/*
+ * Hover preview on devices with a real pointer: the envelope lifts, the
+ * flap tilts up a little and the seal rises with it. Tapping then plays
+ * the full opening from wherever the flap is.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .envelope { transition: transform 0.4s ease; }
+
+  .envelope:hover { transform: translateY(-4px); }
+
+  .envelope:hover .env-back {
+    box-shadow:
+      0 40px 60px -26px rgba(var(--shadow-ink), 0.5),
+      0 1px 3px rgba(var(--shadow-ink), 0.12);
+  }
+
+  .envelope:hover .env-flap,
+  .envelope.was-hover .env-flap {
+    transform: rotateX(26deg);
+  }
+
+  .envelope:hover .env-flap-shadow {
+    opacity: 0.4;
+    transform: translateY(12px);
+  }
+
+  .envelope:hover .env-seal {
+    transform: translateY(-14px) scale(0.95) rotate(-8deg);
+  }
+}
+
+.env-back,
+.env-pocket,
+.env-front,
+.env-flap,
+.env-flap-shadow,
+.card-mini {
+  position: absolute;
+  display: block;
+}
+
+/* Inside of the envelope: same stock, in shadow, darker toward the fold. */
+.env-back {
+  inset: 0;
+  z-index: 0;
+  background:
+    var(--grain),
+    linear-gradient(180deg, rgba(58, 42, 34, 0.18), rgba(58, 42, 34, 0) 45%),
+    var(--env-inside);
+  background-blend-mode: multiply, normal, normal;
+  border-radius: 4px;
+  box-shadow:
+    0 30px 50px -25px rgba(var(--shadow-ink), 0.45),
+    0 1px 3px rgba(var(--shadow-ink), 0.12);
+  transition: box-shadow 0.4s ease;
+}
+
+.card-mini {
+  z-index: 2;
+  left: 6%;
+  right: 6%;
+  top: 5%;
+  height: 88%;
+  overflow: hidden;
+  background: var(--card-stock);
+  background-blend-mode: var(--card-stock-blend);
+  border-radius: 2px;
+  box-shadow: 0 6px 18px rgba(var(--shadow-ink), 0.18);
+  transition: transform 0.8s var(--ease-out) 0.5s;
+}
+
+body.is-open .card-mini { transform: translateY(-72%); }
+
+/* The artwork fills the mini card; the branch sits top-right in the image. */
+.card-mini .art {
+  position: absolute;
+  inset: 0;
+}
+
+.card-mini .art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: right top;
+}
+
+.mini-text {
+  position: absolute;
+  left: 9%;
+  top: 12%;
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  font-weight: 300;
+  text-transform: uppercase;
+}
+
+.mini-word {
+  font-size: clamp(1.1rem, 5.2vw, 1.55rem);
+  letter-spacing: 0.4em;
+}
+
+.mini-the {
+  margin: 0.05em 0 0.1em 0.35em;
+  font-family: var(--font-script);
+  font-size: clamp(1rem, 4.4vw, 1.3rem);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.mini-date {
+  margin-top: 0.9em;
+  font-size: clamp(0.8rem, 3.4vw, 1.05rem);
+  letter-spacing: 0.1em;
+}
+
+/*
+ * The pocket is the front of the envelope: two side panels meeting the
+ * bottom panel in a V. The wrapper carries a drop shadow that follows the
+ * clipped V edge, which a clip-path element cannot cast on its own.
+ */
+.env-pocket {
+  inset: 0;
+  z-index: 3;
+  filter:
+    drop-shadow(0 -1px 1px rgba(var(--shadow-ink), 0.14))
+    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.5));
+}
+
+.env-front {
+  inset: 0;
+  background:
+    var(--grain),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 40%, rgba(58, 42, 34, 0.05) 100%),
+    var(--env-paper);
+  background-blend-mode: multiply, normal, normal;
+  clip-path: polygon(0 0, 50% 52%, 100% 0, 100% 100%, 0 100%);
+  border-radius: 4px;
+}
+
+/* Side panels catch the light differently, so each gets its own shading. */
+.env-front::before,
+.env-front::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.5), rgba(58, 42, 34, 0.05));
+  clip-path: polygon(0 0, 50% 52%, 0 100%);
+}
+
+.env-front::after {
+  background: linear-gradient(to bottom left, rgba(255, 255, 255, 0.2), rgba(58, 42, 34, 0.09));
+  clip-path: polygon(100% 0, 50% 52%, 100% 100%);
+}
+
+/* The bottom panel, lit from above so its top edge reads as a fold. */
+.env-pocket::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(58, 42, 34, 0.1), rgba(255, 255, 255, 0.35) 40%, rgba(255, 255, 255, 0) 100%);
+  clip-path: polygon(0 100%, 50% 52%, 100% 100%);
+}
+
+/* Soft shadow the closed flap casts onto the pocket. */
+.env-flap-shadow {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 57%;
+  z-index: 3;
+  background: linear-gradient(180deg, rgba(58, 42, 34, 0) 55%, rgba(58, 42, 34, 0.16) 100%);
+  clip-path: polygon(-2% 0, 102% 0, 50% 100%);
+  transform: translateY(5px);
+  transition: opacity 0.3s ease, transform 0.5s ease;
+}
+
+body.is-open .env-flap-shadow { opacity: 0; }
+
+.env-flap {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 56%;
+  z-index: 4;
+  background: var(--flap-face);
+  background-blend-mode: multiply, normal, normal;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  border-radius: 4px 4px 0 0;
+  transform-origin: 50% 0;
+  transform: rotateX(0deg);
+  transition: transform 0.5s ease;
+}
+
+/* A faint crease along the flap's two lower edges so it reads as a fold. */
+.env-flap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 60%, rgba(var(--shadow-ink), 0.09) 100%);
+}
+
+body.is-open .env-flap { animation: flap-open 0.7s ease-in-out forwards; }
+
+/* 0% sets no transform on purpose: the opening starts from wherever the
+   flap is, so a hover-tilted flap keeps moving instead of snapping back. */
+@keyframes flap-open {
+  0%    {                             z-index: 4; background: var(--flap-face); }
+  49.9% {                             z-index: 4; background: var(--flap-face); }
+  50%   { transform: rotateX(90deg);  z-index: 1; background: var(--flap-liner); }
+  100%  { transform: rotateX(180deg); z-index: 1; background: var(--flap-liner); }
+}
+
+/* Wax seal: the couple's monogram image, sitting on the flap tip. */
+.env-seal {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  top: 52%;
+  width: 68px;
+  height: 68px;
+  margin: -34px 0 0 -34px;
+  transform: rotate(-8deg);
+  filter: drop-shadow(0 4px 6px rgba(var(--shadow-ink), 0.3));
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.env-seal picture,
+.env-seal img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+body.is-open .env-seal {
+  opacity: 0;
+  transform: rotate(-8deg) scale(0.6);
+}
+
+.env-address {
+  position: absolute;
+  z-index: 5;
+  left: 8%;
+  right: 8%;
+  top: 68%;
+  text-align: center;
+  line-height: 1.1;
+  pointer-events: none;
+}
+
+.env-to {
+  display: block;
+  margin-bottom: 0.1rem;
+  font-family: var(--font-caps);
+  font-size: 0.62rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.env-name {
+  display: block;
+  overflow: hidden;
+  /* Padding keeps the script's tall flourishes and deep descenders inside
+     the clipped box; the negative margins keep the layout unchanged. */
+  padding: 0.15em 0.1em 0.5em;
+  margin: -0.15em -0.1em -0.5em;
+  font-family: var(--font-script);
+  font-size: clamp(2.5rem, 11vw, 3.4rem);
+  line-height: 1.1;
+  color: var(--ink);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tap-hint {
+  margin: 0;
+  font-family: var(--font-caps);
+  font-size: 0.68rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--ink);
+  animation: hint-pulse 2.4s ease-in-out infinite;
+  transition: opacity 0.3s ease;
+}
+
+body.is-open .tap-hint {
+  opacity: 0;
+  animation: none;
+}
+
+@keyframes hint-pulse {
+  0%, 100% { opacity: 0.78; }
+  50%      { opacity: 1; }
+}
+
+/* 4. Card --------------------------------------------------------------- */
+
+/*
+ * The card is a 5 x 7 ivory sheet. Everything inside is sized in cqw
+ * (1cqw = 1% of the card width) so the layout keeps the PDF's proportions
+ * at every screen size.
+ */
+.card {
+  position: relative;
+  width: var(--card-w);
+  aspect-ratio: 5 / 7;
+  container-type: inline-size;
+  overflow: hidden;
+  background: var(--card-stock);
+  background-blend-mode: var(--card-stock-blend);
+  border-radius: 1px;
+  box-shadow:
+    0 40px 70px -40px rgba(var(--shadow-ink), 0.45),
+    0 2px 8px rgba(var(--shadow-ink), 0.06);
+  opacity: 0;
+  transform: scale(0.94);
+  transition:
+    opacity 0.7s ease 1.2s,
+    transform 0.7s var(--ease-out) 1.2s;
+}
+
+/* Pressed-edge vignette, like real card stock. */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  box-shadow: inset 0 0 60px rgba(120, 95, 70, 0.08);
+  pointer-events: none;
+}
+
+body.is-open .card,
+html.no-js .card {
+  opacity: 1;
+  transform: none;
+}
+
+.card .art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.card .art img {
+  width: 100%;
+  height: 100%;
+}
+
+.text {
+  position: absolute;
+  z-index: 1;
+  left: 10.4%;
+  right: 6%;
+  top: 26%;
+}
+
+.headline {
+  margin: 0;
+  font-weight: 300;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.headline .word {
+  display: block;
+  font-size: 9.4cqw;
+  letter-spacing: 0.38em;
+}
+
+.headline .the {
+  display: block;
+  margin: 0.8cqw 0 1cqw 1.1cqw;
+  font-family: var(--font-script);
+  font-size: 6.5cqw;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: none;
+}
+
+.caps {
+  margin: 0;
+  font-family: var(--font-caps);
+  font-weight: 400;
+  font-size: 2.45cqw;
+  letter-spacing: 0.17em;
+  line-height: 1.95;
+  text-transform: uppercase;
+}
+
+.caps.names { margin-top: 6.2cqw; }
+
+.date-big {
+  margin: 2.2cqw 0 0;
+  font-weight: 300;
+  font-size: 10cqw;
+  letter-spacing: 0.1em;
+  line-height: 1;
+}
+
+.caps.venue { margin-top: 6cqw; }
+
+.script-line {
+  margin: 0;
+  font-family: var(--font-script);
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.card .closing {
+  margin-top: 4cqw;
+  font-size: 8.8cqw;
+  line-height: 0.9;
+}
+
+.scroll-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 1.25rem;
+  width: 44px;
+  height: 44px;
+  margin-left: -22px;
+  display: grid;
+  place-items: center;
+  color: var(--ink-soft);
+  opacity: 0;
+  transition: opacity 0.6s ease 2.4s;
+}
+
+html.js body.is-closed .scroll-hint,
+html.js body.is-closed .details {
+  visibility: hidden;
+}
+
+.scroll-hint svg {
+  width: 22px;
+  height: 22px;
+}
+
+body.is-open .scroll-hint {
+  opacity: 1;
+  animation: bob 2s ease-in-out 2.4s infinite;
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(6px); }
+}
+
+/* 5. Details ------------------------------------------------------------ */
+
+.details {
+  width: var(--card-w);
+  margin: 0 auto 4rem;
+  padding: 3rem 0 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  border-top: 1px solid rgba(var(--shadow-ink), 0.16);
+  text-align: center;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s var(--ease-out);
+}
+
+.details.is-visible,
+html.no-js .details {
+  opacity: 1;
+  transform: none;
+}
+
+.details .script-line {
+  margin: 0 0 0.2rem;
+  font-size: 4rem;
+  line-height: 1;
+}
+
+.countdown {
+  display: flex;
+  justify-content: center;
+  gap: 1.8rem;
+  margin: 0 0 1rem;
+  min-height: 3rem;
+}
+
+.countdown .num {
+  display: block;
+  font-weight: 300;
+  font-size: 1.9rem;
+  line-height: 1;
+}
+
+.countdown .unit {
+  display: block;
+  margin-top: 0.35rem;
+  font-family: var(--font-caps);
+  font-size: 0.56rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.countdown-note {
+  font-style: italic;
+  font-size: 1.15rem;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 0.8rem 1.2rem;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  color: var(--ink);
+  font-family: var(--font-caps);
+  font-size: 0.7rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.btn:hover { background: rgba(233, 214, 218, 0.55); }
+.btn:active { transform: scale(0.98); }
+
+.btn:focus-visible {
+  outline: 2px solid var(--blossom-deep);
+  outline-offset: 3px;
+}
+
+.btn-primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+
+.btn-primary:hover { background: #514845; }
+
+.details .closing {
+  margin-top: 1.6rem;
+  font-size: 3.2rem;
+}
+
+/* 6. Petals ------------------------------------------------------------- */
+
+/*
+ * Three nested layers per petal:
+ *   .petal        falls and drifts with the wind (linear, long)
+ *   .petal-sway   rocks side to side (ease, medium)
+ *   .petal-tumble flips in 3D like a real petal catching the air (short)
+ * Every timing and amplitude is a custom property set per petal by main.js.
+ */
+.petals {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+  perspective: 700px;
+  pointer-events: none;
+}
+
+.petal {
+  position: absolute;
+  top: -8vh;
+  left: var(--x, 50vw);
+  width: var(--size, 14px);
+  height: calc(var(--size, 14px) * 1.2);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.petal-sway,
+.petal-tumble {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.petal-tumble { transform-style: preserve-3d; }
+
+.petal svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.petals.is-falling .petal {
+  animation: petal-fall var(--fall, 12s) linear var(--delay, 0s) infinite;
+}
+
+.petals.is-falling .petal-sway {
+  animation: petal-sway var(--sway-t, 3s) ease-in-out var(--delay, 0s) infinite alternate;
+}
+
+.petals.is-falling .petal-tumble {
+  animation: petal-tumble var(--tumble-t, 2.4s) ease-in-out var(--delay, 0s) infinite alternate;
+}
+
+@keyframes petal-fall {
+  0%   { transform: translate3d(0, 0, 0); opacity: 0; }
+  6%   { opacity: var(--alpha, 0.9); }
+  92%  { opacity: var(--alpha, 0.9); }
+  100% { transform: translate3d(var(--drift, 0px), 118vh, 0); opacity: 0; }
+}
+
+@keyframes petal-sway {
+  from { transform: translateX(calc(var(--sway, 30px) * -1)); }
+  to   { transform: translateX(var(--sway, 30px)); }
+}
+
+@keyframes petal-tumble {
+  0%   { transform: rotateX(0deg)   rotateY(0deg)   rotateZ(var(--rz, 0deg)); }
+  50%  { transform: rotateX(150deg) rotateY(40deg)  rotateZ(calc(var(--rz, 0deg) + 35deg)); }
+  100% { transform: rotateX(330deg) rotateY(-30deg) rotateZ(calc(var(--rz, 0deg) - 25deg)); }
+}
+
+/* 7. Motion preferences ------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+
+  .petals { display: none; }
+}
