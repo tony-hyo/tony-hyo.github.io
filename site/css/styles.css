@@ -165,13 +165,42 @@ html.no-js .envelope-scene { display: none; }
 body.is-open .envelope { pointer-events: none; }
 
 /*
- * Hover preview on devices with a real pointer: the envelope lifts, the
- * flap tilts up a little and the seal rises with it. Tapping then plays
- * the full opening from wherever the flap is.
+ * Preview state: the envelope lifts, the flap tilts up a little and the
+ * seal rises with it. Mouse users get it on hover; everyone gets it while
+ * pressing (main.js adds .is-pressed). Releasing a tap plays the full
+ * opening from wherever the flap is. Dragging upward pulls the flap open
+ * by hand (main.js sets --flap-angle and --drag while .is-dragging).
  */
-@media (hover: hover) and (pointer: fine) {
-  .envelope { transition: transform 0.4s ease; }
+.envelope {
+  touch-action: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+  transition: transform 0.4s ease;
+}
 
+.envelope.is-pressed { transform: translateY(-4px); }
+
+.envelope.is-pressed .env-back {
+  box-shadow:
+    0 40px 60px -26px rgba(var(--shadow-ink), 0.5),
+    0 1px 3px rgba(var(--shadow-ink), 0.12);
+}
+
+.envelope.is-pressed .env-flap,
+.envelope.was-hover .env-flap {
+  transform: rotateX(26deg);
+}
+
+.envelope.is-pressed .env-flap-shadow {
+  opacity: 0.4;
+  transform: translateY(12px);
+}
+
+.envelope.is-pressed .env-seal {
+  transform: translateY(-14px) scale(0.95) rotate(0deg);
+}
+
+@media (hover: hover) and (pointer: fine) {
   .envelope:hover { transform: translateY(-4px); }
 
   .envelope:hover .env-back {
@@ -180,10 +209,7 @@ body.is-open .envelope { pointer-events: none; }
       0 1px 3px rgba(var(--shadow-ink), 0.12);
   }
 
-  .envelope:hover .env-flap,
-  .envelope.was-hover .env-flap {
-    transform: rotateX(26deg);
-  }
+  .envelope:hover .env-flap { transform: rotateX(26deg); }
 
   .envelope:hover .env-flap-shadow {
     opacity: 0.4;
@@ -193,6 +219,37 @@ body.is-open .envelope { pointer-events: none; }
   .envelope:hover .env-seal {
     transform: translateY(-14px) scale(0.95) rotate(0deg);
   }
+}
+
+/* Dragging: the flap follows the finger; the seal and shadow fade as it lifts. */
+.envelope.is-dragging .env-flap {
+  transform: rotateX(var(--flap-angle, 26deg));
+  transition: none;
+}
+
+.envelope.is-past .env-flap {
+  z-index: 1;
+  background: var(--flap-liner);
+}
+
+.envelope.is-dragging .env-seal {
+  opacity: calc(1 - var(--drag, 0) * 1.5);
+  transform: translateY(calc(-14px - 24px * var(--drag, 0))) scale(calc(0.95 - 0.3 * var(--drag, 0)));
+  transition: none;
+}
+
+.envelope.is-dragging .env-flap-shadow {
+  opacity: calc(0.4 * (1 - var(--drag, 0)));
+  transition: none;
+}
+
+/* Opened by a drag: the flap finishes with a transition from where the
+   finger left it, instead of the keyframed swing used for a tap. */
+body.is-open .envelope.drag-opened .env-flap {
+  animation: none;
+  transform: rotateX(180deg);
+  z-index: 1;
+  background: var(--flap-liner);
 }
 
 .env-back,
@@ -529,6 +586,14 @@ html.no-js .card {
   font-weight: 300;
   line-height: 1;
   text-transform: uppercase;
+}
+
+/* main.js moves focus here after the envelope opens so assistive tech
+   lands on the card. It is never a tab stop, so no focus ring is wanted
+   (iOS Safari draws one for programmatic focus). */
+.headline:focus,
+.headline:focus-visible {
+  outline: none;
 }
 
 .headline .word {

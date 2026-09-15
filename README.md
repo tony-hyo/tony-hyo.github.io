@@ -1,8 +1,9 @@
 # Wedding Invitation
 
 An animated cherry blossom save-the-date. Static site, no build step, no
-dependencies. Guests tap a sealed envelope, the card slides out, petals
-fall, and a button links to the Withjoy site for everything else.
+dependencies. Guests tap a sealed envelope (or press and hold to peek, or
+drag the flap open), the card slides out, petals fall, and a button links
+to the Withjoy site for everything else.
 
 ## Preview locally
 

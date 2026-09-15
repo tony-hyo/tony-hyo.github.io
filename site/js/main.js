@@ -135,7 +135,90 @@
     setTimeout(finalize, reduceMotion ? 0 : 2500);
   }
 
-  if (envelope) envelope.addEventListener('click', open);
+  /*
+   * Pointer handling covers mouse and touch alike:
+   *   press and hold  -> preview (.is-pressed, same look as hover)
+   *   drag upward     -> flap follows the finger; release past halfway opens
+   *   tap             -> the click event opens as before
+   * Keyboard activation still arrives as a plain click.
+   */
+  var PRESS_ANGLE = 26;    // degrees, matches the hover tilt
+  var OPEN_ANGLE = 95;     // release beyond this and the envelope opens
+  var MAX_ANGLE = 160;     // how far a drag can pull the flap
+  var DRAG_SLOP = 8;       // px of movement before a press becomes a drag
+  var DRAG_RANGE = 140;    // px of upward travel for the full angle range
+  var pointerId = null;
+  var startY = 0;
+  var dragging = false;
+  var dragAngle = 0;
+  var handledByPointer = false;
+
+  function onPointerDown(e) {
+    if (opened || pointerId !== null) return;
+    if (e.button !== undefined && e.button !== 0) return;
+    pointerId = e.pointerId;
+    startY = e.clientY;
+    dragging = false;
+    dragAngle = 0;
+    handledByPointer = false;
+    envelope.classList.add('is-pressed');
+    try { envelope.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+  }
+
+  function onPointerMove(e) {
+    if (e.pointerId !== pointerId || opened) return;
+    var dy = startY - e.clientY;
+    if (!dragging && dy < DRAG_SLOP) return;
+    dragging = true;
+    var t = Math.max(0, Math.min(1, (dy - DRAG_SLOP) / DRAG_RANGE));
+    dragAngle = PRESS_ANGLE + t * (MAX_ANGLE - PRESS_ANGLE);
+    envelope.classList.add('is-dragging');
+    envelope.classList.toggle('is-past', dragAngle >= 90);
+    envelope.style.setProperty('--flap-angle', dragAngle.toFixed(1) + 'deg');
+    envelope.style.setProperty('--drag', t.toFixed(3));
+  }
+
+  function onPointerEnd(e, cancelled) {
+    if (e.pointerId !== pointerId) return;
+    pointerId = null;
+    envelope.classList.remove('is-dragging');
+
+    if (dragging && !cancelled && dragAngle >= OPEN_ANGLE) {
+      handledByPointer = true;
+      envelope.classList.add('drag-opened');
+      open();
+      return;
+    }
+
+    if (dragging) handledByPointer = true; // a short drag is not a tap
+    envelope.classList.remove('is-past');
+    envelope.style.removeProperty('--flap-angle');
+    envelope.style.removeProperty('--drag');
+    // A tap's click arrives right after this; keep the pressed look until
+    // then so the opening continues from the tilted flap.
+    setTimeout(function () {
+      if (!opened) envelope.classList.remove('is-pressed');
+    }, 150);
+  }
+
+  function onClick() {
+    if (handledByPointer) {
+      handledByPointer = false;
+      return;
+    }
+    open();
+  }
+
+  if (envelope) {
+    envelope.addEventListener('click', onClick);
+    if (window.PointerEvent) {
+      envelope.addEventListener('pointerdown', onPointerDown);
+      envelope.addEventListener('pointermove', onPointerMove);
+      envelope.addEventListener('pointerup', function (e) { onPointerEnd(e, false); });
+      envelope.addEventListener('pointercancel', function (e) { onPointerEnd(e, true); });
+      envelope.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    }
+  }
   if (card) {
     card.addEventListener('transitionend', function (e) {
       if (e.target === card && e.propertyName === 'opacity') finalize();
