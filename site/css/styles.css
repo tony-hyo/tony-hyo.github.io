@@ -247,7 +247,6 @@ body.is-open .envelope.drag-opened .env-flap {
   z-index: 1;
   background: var(--flap-liner);
 }
-
 .env-back,
 .env-side,
 .env-bottom,
@@ -511,6 +510,30 @@ body.is-open .env-seal {
   text-overflow: ellipsis;
 }
 
+/*
+ * The guest's name appears left to right, like ink being written. A mask
+ * with a soft edge slides across; main.js adds .is-written once the
+ * handwriting font has loaded.
+ */
+html.js .env-name {
+  -webkit-mask-image: linear-gradient(90deg, #000 45%, transparent 55%);
+  mask-image: linear-gradient(90deg, #000 45%, transparent 55%);
+  -webkit-mask-size: 220% 100%;
+  mask-size: 220% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: 100% 0;
+  mask-position: 100% 0;
+  transition:
+    -webkit-mask-position 1.9s cubic-bezier(0.45, 0.05, 0.35, 1),
+    mask-position 1.9s cubic-bezier(0.45, 0.05, 0.35, 1);
+}
+
+html.js .env-name.is-written {
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+}
+
 .tap-hint {
   margin: 0;
   font-family: var(--font-caps);
@@ -594,6 +617,30 @@ html.no-js .card {
   left: 10.4%;
   right: 6%;
   top: 26%;
+}
+
+/*
+ * Staggered reveal: the blossoms arrive with the card, then each line
+ * fades up in reading order.
+ */
+html.js .text > * {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.8s ease,
+    transform 0.9s var(--ease-out);
+  transition-delay: calc(1.5s + var(--i, 0) * 0.17s);
+}
+
+.text > :nth-child(1) { --i: 0; }
+.text > :nth-child(2) { --i: 1; }
+.text > :nth-child(3) { --i: 2; }
+.text > :nth-child(4) { --i: 3; }
+.text > :nth-child(5) { --i: 4; }
+
+body.is-open .text > * {
+  opacity: 1;
+  transform: none;
 }
 
 /*
@@ -843,8 +890,25 @@ html.no-js .details {
   will-change: transform, opacity;
 }
 
+.petal-push,
 .petal-sway,
 .petal-tumble {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* One-off petals: the burst when the envelope opens and the puff on a tap.
+   main.js positions and animates each one, then removes it. */
+.burst-petal {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.burst-petal svg {
   display: block;
   width: 100%;
   height: 100%;
