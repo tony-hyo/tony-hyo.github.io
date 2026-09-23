@@ -500,8 +500,12 @@ body.is-open .env-seal {
   overflow: hidden;
   /* Padding keeps the script's tall flourishes and deep descenders inside
      the clipped box; the negative margins keep the layout unchanged. */
-  padding: 0.15em 0.1em 0.5em;
-  margin: -0.15em -0.1em -0.5em;
+  /* Sized to the name itself (not the full row) so the write-on reveal
+     spans exactly the letters. */
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.15em 0.12em 0.5em;
+  margin: -0.15em auto -0.5em;
   font-family: var(--font-script);
   font-size: clamp(2.5rem, 11vw, 3.4rem);
   line-height: 1.1;
@@ -525,13 +529,27 @@ html.js .env-name {
   -webkit-mask-position: 100% 0;
   mask-position: 100% 0;
   transition:
-    -webkit-mask-position 1.9s cubic-bezier(0.45, 0.05, 0.35, 1),
-    mask-position 1.9s cubic-bezier(0.45, 0.05, 0.35, 1);
+    -webkit-mask-position 2.8s cubic-bezier(0.45, 0.05, 0.35, 1),
+    mask-position 2.8s cubic-bezier(0.45, 0.05, 0.35, 1);
 }
 
+/* The ink goes on glowing a warm rose, then settles to its dark colour.
+   The mask hides the glow on letters not yet written, so it trails the pen. */
 html.js .env-name.is-written {
   -webkit-mask-position: 0 0;
   mask-position: 0 0;
+  animation: name-glow 4.6s ease-in-out forwards;
+}
+
+@keyframes name-glow {
+  0%, 55% {
+    color: #B5627E;
+    text-shadow: 0 0 6px rgba(214, 96, 138, 0.55), 0 0 16px rgba(233, 155, 180, 0.6);
+  }
+  100% {
+    color: var(--ink);
+    text-shadow: 0 0 0 rgba(214, 96, 138, 0), 0 0 0 rgba(233, 155, 180, 0);
+  }
 }
 
 .tap-hint {
