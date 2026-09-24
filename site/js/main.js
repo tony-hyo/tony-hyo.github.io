@@ -106,9 +106,15 @@
   }
 
   /*
-   * One-off petals for the opening burst and the tap puff. Each flies up
-   * and out, then drifts down and fades. `spread` is the sideways reach
-   * and `lift` the height of the arc, both in px.
+   * One-off petals for the opening burst and the tap puff. They are built
+   * like the falling petals, in three independent layers:
+   *   .burst-petal   one smooth path: a soft puff up and out that peaks,
+   *                  then eases into a steady fall, fading near the end
+   *   .petal-sway    the same side-to-side sway as the falling petals
+   *   .petal-tumble  the same 3D tumble as the falling petals
+   * Keeping the motions separate is what makes them glide rather than
+   * start and stop. `spread` is the sideways reach and `lift` the height
+   * of the puff, both in px.
    */
   var MAX_LOOSE_PETALS = 40;
   var loosePetals = 0;
@@ -123,36 +129,54 @@
     el.style.height = Math.round(size * 1.2) + 'px';
     el.style.left = Math.round(x - size / 2) + 'px';
     el.style.top = Math.round(y - size / 2) + 'px';
+    // Sway and tumble timings in the same ranges as the falling petals.
+    var swayT = 2.4 + Math.random() * 2.2;
+    var tumbleT = 1.6 + Math.random() * 2;
+    el.style.setProperty('--sway', rand(12, 30) + 'px');
+    el.style.setProperty('--sway-t', swayT.toFixed(1) + 's');
+    el.style.setProperty('--sway-delay', (-Math.random() * swayT).toFixed(1) + 's');
+    el.style.setProperty('--tumble-t', tumbleT.toFixed(1) + 's');
+    el.style.setProperty('--tumble-delay', (-Math.random() * tumbleT).toFixed(1) + 's');
+    el.style.setProperty('--rz', rand(-60, 60) + 'deg');
     el.innerHTML =
+      '<span class="petal-sway"><span class="petal-tumble">' +
       '<svg viewBox="0 0 20 24" aria-hidden="true"><use href="#petal-' +
-      (Math.random() < 0.35 ? 'b' : 'a') + '"></use></svg>';
+      (Math.random() < 0.35 ? 'b' : 'a') + '"></use></svg></span></span>';
     petals.appendChild(el);
 
-    var dx = rand(-spread, spread);
+    var dx = rand(-spread, spread);          // total sideways travel
     var up = rand(Math.round(lift * 0.55), lift);
-    var fall = rand(80, 170);
-    var spin = rand(-320, 320);
-    var flip = rand(120, 300);
+    var fall = rand(240, 340);               // descent after the peak
+    var alpha = (0.75 + Math.random() * 0.2).toFixed(2);
+    var PEAK = 0.2;                          // share of the time spent rising
+
     var anim = el.animate(
       [
-        { transform: 'translate(0, 0) rotate(0deg) rotateX(0deg) scale(0.55)', opacity: 0 },
-        { offset: 0.12, opacity: 0.95 },
+        // Rise: quick at first, slowing to a stop at the top of the puff.
         {
-          offset: 0.42,
-          transform: 'translate(' + Math.round(dx * 0.7) + 'px, ' + -up + 'px) rotate(' +
-            Math.round(spin * 0.45) + 'deg) rotateX(' + Math.round(flip * 0.45) + 'deg) scale(1)',
-          opacity: 0.95
+          offset: 0,
+          transform: 'translate(0px, 0px) scale(0.6)',
+          opacity: 0,
+          easing: 'cubic-bezier(0.2, 0.7, 0.4, 1)'
         },
+        { offset: 0.08, opacity: alpha },
+        // Fall: starts from rest at the peak and settles into a steady glide.
         {
-          transform: 'translate(' + dx + 'px, ' + (fall - up) + 'px) rotate(' + spin +
-            'deg) rotateX(' + flip + 'deg) scale(0.95)',
+          offset: PEAK,
+          transform: 'translate(' + Math.round(dx * 0.35) + 'px, ' + -up + 'px) scale(1)',
+          easing: 'cubic-bezier(0.4, 0, 0.75, 0.75)'
+        },
+        { offset: 0.85, opacity: alpha },
+        {
+          offset: 1,
+          transform: 'translate(' + dx + 'px, ' + (fall - up) + 'px) scale(1)',
           opacity: 0
         }
       ],
       {
-        duration: rand(1700, 2500),
+        duration: rand(3200, 4400),
         delay: delay || 0,
-        easing: 'cubic-bezier(0.2, 0.6, 0.35, 1)',
+        easing: 'linear',
         fill: 'both'
       }
     );

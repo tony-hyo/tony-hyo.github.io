@@ -918,6 +918,15 @@ html.no-js .details {
   height: 100%;
 }
 
+/* Burst petals sway and tumble exactly like the falling petals. */
+.burst-petal .petal-sway {
+  animation: petal-sway var(--sway-t, 3s) ease-in-out var(--sway-delay, 0s) infinite alternate;
+}
+
+.burst-petal .petal-tumble {
+  animation: petal-tumble var(--tumble-t, 2.4s) ease-in-out var(--tumble-delay, 0s) infinite alternate;
+}
+
 .petal-tumble { transform-style: preserve-3d; }
 
 .petal svg {
