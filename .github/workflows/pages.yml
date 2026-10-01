@@ -22,6 +22,10 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      # Give the CSS and JS links a version unique to this commit so phones
+      # never pair a freshly deployed page with a cached older stylesheet.
+      - name: Version asset links
+        run: sed -i "s/?v=dev/?v=${GITHUB_SHA::8}/g" site/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

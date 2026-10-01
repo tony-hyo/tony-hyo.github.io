@@ -18,7 +18,7 @@
 /* 1. Tokens ------------------------------------------------------------- */
 
 :root {
-  --paper: #EDE7DB;          /* linen page behind the card */
+  --paper: #EFE0DE;          /* dusty blush cotton paper under the envelope */
   --card: #F6F1E7;           /* ivory card stock */
   --env-paper: #EFE8DB;      /* envelope stock: a shade deeper than the card */
   --env-paper-deep: #E3DACA;
@@ -40,8 +40,15 @@
   --shadow-ink: 58, 42, 34;
   --shadow-tint: 128, 98, 78;   /* multiplied over paper, so shadows stay warm, not grey */
 
-  /* Fine paper grain, tiled. Alpha tops out at 0.16 so it stays subtle. */
-  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.16'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* The surface under the invitation: a cotton-paper tile lit from the upper right
+     (50% gray where flat, so soft-light keeps the colour), a pool of light at the upper
+     right and a gentle falloff to the lower left. */
+  --surface:
+    url('../assets/surface-paper.webp') 0 0 / 360px 360px repeat,
+    radial-gradient(130% 95% at 88% -6%, rgba(255, 252, 246, 0.38), rgba(255, 252, 246, 0) 62%),
+    linear-gradient(to bottom left, rgba(255, 255, 255, 0.05), rgba(var(--shadow-ink), 0.08)),
+    var(--paper);
+  --surface-blend: soft-light, normal, normal, normal;
 
   /* Envelope stock: broad uneven tone, faint long paper fibres and a fine
      grain, for a soft papery feel. */
@@ -101,7 +108,7 @@ html {
 body {
   margin: 0;
   min-height: 100svh;
-  background: var(--paper);
+  background: transparent;
   color: var(--ink);
   font-family: var(--font-serif);
   font-size: 17px;
@@ -110,17 +117,18 @@ body {
   overflow-x: hidden;
 }
 
-/* Linen grain across the whole page, behind everything. */
+/* The surface the invitation rests on, fixed to the viewport so it lines up exactly with
+   the envelope scene's copy of it when that fades away. */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image: var(--grain);
-  opacity: 0.6;
-  mix-blend-mode: multiply;
+  background: var(--surface);
+  background-blend-mode: var(--surface-blend);
   pointer-events: none;
 }
+
 
 /* Scroll stays locked until the envelope has been opened. */
 html.js body.is-closed {
@@ -149,9 +157,8 @@ img { display: block; max-width: 100%; }
   align-items: center;
   justify-content: center;
   gap: 2.4rem;
-  background:
-    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.55), transparent 38rem),
-    var(--paper);
+  background: var(--surface);
+  background-blend-mode: var(--surface-blend);
   transition:
     opacity 0.5s ease 1.2s,
     transform 0.5s ease 1.2s,
