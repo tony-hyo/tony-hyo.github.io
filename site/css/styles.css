@@ -38,9 +38,14 @@
   --env-w: min(86vw, 410px);
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
   --shadow-ink: 58, 42, 34;
+  --shadow-tint: 128, 98, 78;   /* multiplied over paper, so shadows stay warm, not grey */
 
   /* Fine paper grain, tiled. Alpha tops out at 0.16 so it stays subtle. */
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.16'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+  /* Envelope stock: broad uneven tone, faint long paper fibres and a fine
+     grain, for a soft papery feel. */
+  --env-tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.006' numOctaves='3' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0 0.09'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.42' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0 0.07'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.2'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
 
   /* Stronger grain for the card itself, so the paper reads as real stock. */
   --grain-card: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.2'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -55,13 +60,33 @@
 
   /* Envelope flap faces: ivory outside, blush lining inside. */
   --flap-face:
-    var(--grain),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.08) 55%, rgba(58, 42, 34, 0.025) 100%),
+    var(--env-tex),
+    linear-gradient(205deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.08) 55%, rgba(58, 42, 34, 0.04) 100%),
     var(--env-paper);
   --flap-liner:
-    var(--grain),
-    linear-gradient(180deg, rgba(58, 42, 34, 0.08), rgba(255, 255, 255, 0.15) 70%),
+    var(--env-tex),
+    linear-gradient(180deg, rgba(58, 42, 34, 0.16), rgba(58, 42, 34, 0.05) 22%, rgba(255, 255, 255, 0.15) 70%),
+    var(--gum-left) left top / 50% 100% no-repeat,
+    var(--gum-right) right top / 50% 100% no-repeat,
     var(--liner);
+
+  /*
+   * Gum strip along the flap's two lower edges, on the lining side only:
+   * a faint band a shade deeper than the paper that fades softly inward.
+   * Each half of the flap is a box whose corner-to-corner diagonal is that
+   * half's edge, so a corner-aimed gradient runs exactly parallel to it,
+   * with 50% sitting on the edge itself. The two halves meet exactly at the
+   * centre (no overlap), so the strip forms a clean mitre at the tip.
+   */
+  --gum:
+    transparent 50%,
+    rgba(150, 82, 104, 0.1) 50.3%,
+    rgba(150, 82, 104, 0.085) 53%,
+    rgba(150, 82, 104, 0.03) 56%,
+    rgba(255, 255, 255, 0.05) 57%,
+    transparent 58.5%;
+  --gum-left: linear-gradient(to top right, var(--gum));
+  --gum-right: linear-gradient(to top left, var(--gum));
 }
 
 /* 2. Base --------------------------------------------------------------- */
@@ -182,8 +207,10 @@ body.is-open .envelope { pointer-events: none; }
 
 .envelope.is-pressed .env-back {
   box-shadow:
-    0 40px 60px -26px rgba(var(--shadow-ink), 0.5),
-    0 1px 3px rgba(var(--shadow-ink), 0.12);
+    -1px 3px 3px rgba(var(--shadow-ink), 0.12),
+    -6px 11px 12px -3px rgba(var(--shadow-ink), 0.13),
+    -16px 30px 34px -12px rgba(var(--shadow-ink), 0.2),
+    -32px 56px 72px -26px rgba(var(--shadow-ink), 0.28);
 }
 
 .envelope.is-pressed .env-flap,
@@ -192,7 +219,7 @@ body.is-open .envelope { pointer-events: none; }
 }
 
 .envelope.is-pressed .env-flap-shadow { opacity: 0.55; }
-.envelope.is-pressed .env-flap-shadow .env-blur { transform: translateY(8px); }
+.envelope.is-pressed .env-flap-shadow .env-blur { transform: translate(-7px, 2px) scaleY(0.9); }
 
 .envelope.is-pressed .env-seal {
   transform: translateY(-14px) scale(0.95) rotate(0deg);
@@ -203,14 +230,16 @@ body.is-open .envelope { pointer-events: none; }
 
   .envelope:hover .env-back {
     box-shadow:
-      0 40px 60px -26px rgba(var(--shadow-ink), 0.5),
-      0 1px 3px rgba(var(--shadow-ink), 0.12);
+      -1px 3px 3px rgba(var(--shadow-ink), 0.12),
+      -6px 11px 12px -3px rgba(var(--shadow-ink), 0.13),
+      -16px 30px 34px -12px rgba(var(--shadow-ink), 0.2),
+      -32px 56px 72px -26px rgba(var(--shadow-ink), 0.28);
   }
 
   .envelope:hover .env-flap { transform: rotateX(26deg); }
 
   .envelope:hover .env-flap-shadow { opacity: 0.55; }
-  .envelope:hover .env-flap-shadow .env-blur { transform: translateY(8px); }
+  .envelope:hover .env-flap-shadow .env-blur { transform: translate(-7px, 2px) scaleY(0.9); }
 
   .envelope:hover .env-seal {
     transform: translateY(-14px) scale(0.95) rotate(0deg);
@@ -234,8 +263,16 @@ body.is-open .envelope { pointer-events: none; }
   transition: none;
 }
 
+.envelope.is-dragging .env-flap-shadow .env-blur {
+  transform:
+    translateX(calc(-20px * sin(var(--flap-angle, 26deg))))
+    scaleY(max(0.05, 0.42 + 0.58 * cos(var(--flap-angle, 26deg)) - 0.6 * max(0, -1 * cos(var(--flap-angle, 26deg)))));
+  filter: blur(calc(15px + 12px * sin(min(var(--flap-angle, 26deg), 90deg))));
+  transition: none;
+}
+
 .envelope.is-dragging .env-flap-shadow {
-  opacity: calc(0.55 * (1 - var(--drag, 0)));
+  opacity: clamp(0, 0.85 - 1.4 * max(0, -1 * cos(var(--flap-angle, 26deg))), 0.85);
   transition: none;
 }
 
@@ -262,14 +299,16 @@ body.is-open .envelope.drag-opened .env-flap {
   inset: 0;
   z-index: 0;
   background:
-    var(--grain),
+    var(--env-tex),
     linear-gradient(180deg, rgba(58, 42, 34, 0.18), rgba(58, 42, 34, 0) 45%),
     var(--env-inside);
   background-blend-mode: multiply, normal, normal;
   border-radius: 4px;
   box-shadow:
-    0 30px 50px -25px rgba(var(--shadow-ink), 0.45),
-    0 1px 3px rgba(var(--shadow-ink), 0.12);
+    -1px 2px 2px rgba(var(--shadow-ink), 0.16),
+    -4px 7px 8px -2px rgba(var(--shadow-ink), 0.14),
+    -12px 22px 26px -10px rgba(var(--shadow-ink), 0.2),
+    -26px 44px 60px -24px rgba(var(--shadow-ink), 0.26);
   transition: box-shadow 0.4s ease;
 }
 
@@ -283,7 +322,9 @@ body.is-open .envelope.drag-opened .env-flap {
   background: var(--card-stock);
   background-blend-mode: var(--card-stock-blend);
   border-radius: 5px;
-  box-shadow: 0 6px 18px rgba(var(--shadow-ink), 0.18);
+  box-shadow:
+    -1px 2px 3px rgba(var(--shadow-ink), 0.14),
+    -6px 10px 18px -4px rgba(var(--shadow-ink), 0.2);
   transition: transform 0.8s var(--ease-out) 0.5s;
 }
 
@@ -337,13 +378,13 @@ body.is-open .card-mini { transform: translateY(-72%); }
  * The front of the envelope is built the way one is folded: two side
  * panels underneath, the bottom panel folded over them, and the flap over
  * everything. Each upper layer casts a soft shadow onto the layer beneath,
- * and the light comes from the top-left.
+ * and the light comes from the upper right, so shadows fall down and left.
  */
 .env-side {
   inset: 0;
   z-index: 3;
   background:
-    var(--grain),
+    var(--env-tex),
     var(--side-light),
     var(--env-paper);
   background-blend-mode: multiply, normal, normal;
@@ -352,24 +393,50 @@ body.is-open .card-mini { transform: translateY(-72%); }
 
 .env-side-l {
   clip-path: polygon(0 0, 50% 52%, 0 100%);
-  --side-light: linear-gradient(to bottom right, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1) 45%, rgba(var(--shadow-ink), 0.05));
+  --side-light: linear-gradient(to bottom right, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 40%, rgba(var(--shadow-ink), 0.1));
 }
 
 .env-side-r {
   clip-path: polygon(100% 0, 50% 52%, 100% 100%);
-  --side-light: linear-gradient(to bottom left, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 45%, rgba(var(--shadow-ink), 0.09));
+  --side-light: linear-gradient(to bottom left, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1) 45%, rgba(var(--shadow-ink), 0.04));
 }
 
 .env-bottom {
   inset: 0;
   z-index: 3;
   background:
-    var(--grain),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.06) 50%, rgba(var(--shadow-ink), 0.03) 100%),
+    var(--env-tex),
+    linear-gradient(200deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.06) 50%, rgba(var(--shadow-ink), 0.05) 100%),
     var(--env-paper);
   background-blend-mode: multiply, normal, normal;
-  clip-path: polygon(0 100%, 50% 52%, 100% 100%);
+  clip-path: polygon(0 100%, 48.04% 45.24%, 48.39% 44.89%, 48.77% 44.61%, 49.16% 44.41%, 49.58% 44.29%, 50% 44.25%, 50.42% 44.29%, 50.84% 44.41%, 51.23% 44.61%, 51.61% 44.89%, 51.96% 45.24%, 100% 100%);
   border-radius: 4px;
+}
+
+/*
+ * Paper thickness: a thin highlight just inside the folded edges, brighter
+ * on the right where the light falls. Paired with the tight contact shadow
+ * outside the edge, this is what makes the fold read as paper.
+ */
+.env-bottom::after,
+.env-flap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.85);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  pointer-events: none;
+}
+
+.env-bottom::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 145 100' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='l' x1='0' x2='1' y1='0' y2='0'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.45'/%3E%3Cstop offset='0.5' stop-color='%23fff' stop-opacity='0.8'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='1'/%3E%3C/linearGradient%3E%3Cfilter id='s' x='-5%25' y='-5%25' width='110%25' height='110%25'%3E%3CfeGaussianBlur stdDeviation='0.25'/%3E%3C/filter%3E%3C/defs%3E%3Cpath d='M-1,100.7 L69.66,45.23 A4.6,4.6 0 0 1 75.34,45.23 L146,100.7' fill='none' stroke='url(%23l)' stroke-width='1.1' stroke-linejoin='round' filter='url(%23s)' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 145 100' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='l' x1='0' x2='1' y1='0' y2='0'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.45'/%3E%3Cstop offset='0.5' stop-color='%23fff' stop-opacity='0.8'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='1'/%3E%3C/linearGradient%3E%3Cfilter id='s' x='-5%25' y='-5%25' width='110%25' height='110%25'%3E%3CfeGaussianBlur stdDeviation='0.25'/%3E%3C/filter%3E%3C/defs%3E%3Cpath d='M-1,100.7 L69.66,45.23 A4.6,4.6 0 0 1 75.34,45.23 L146,100.7' fill='none' stroke='url(%23l)' stroke-width='1.1' stroke-linejoin='round' filter='url(%23s)' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
+}
+
+.env-flap::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 145 56' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='l' x1='0' x2='1' y1='0' y2='0'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.45'/%3E%3Cstop offset='0.5' stop-color='%23fff' stop-opacity='0.8'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='1'/%3E%3C/linearGradient%3E%3Cfilter id='s' x='-5%25' y='-5%25' width='110%25' height='110%25'%3E%3CfeGaussianBlur stdDeviation='0.25'/%3E%3C/filter%3E%3C/defs%3E%3Cpath d='M-1,-0.8 L69.93,54.02 A4.2,4.2 0 0 0 75.07,54.02 L146,-0.8' fill='none' stroke='url(%23l)' stroke-width='1.1' stroke-linejoin='round' filter='url(%23s)' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 145 56' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='l' x1='0' x2='1' y1='0' y2='0'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.45'/%3E%3Cstop offset='0.5' stop-color='%23fff' stop-opacity='0.8'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='1'/%3E%3C/linearGradient%3E%3Cfilter id='s' x='-5%25' y='-5%25' width='110%25' height='110%25'%3E%3CfeGaussianBlur stdDeviation='0.25'/%3E%3C/filter%3E%3C/defs%3E%3Cpath d='M-1,-0.8 L69.93,54.02 A4.2,4.2 0 0 0 75.07,54.02 L146,-0.8' fill='none' stroke='url(%23l)' stroke-width='1.1' stroke-linejoin='round' filter='url(%23s)' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
 }
 
 /*
@@ -382,13 +449,14 @@ body.is-open .card-mini { transform: translateY(-72%); }
   z-index: 3;
   overflow: hidden;
   border-radius: 4px;
+  mix-blend-mode: multiply;
   transition: opacity 0.3s ease;
 }
 
 .env-blur {
   position: absolute;
   inset: -30px;
-  filter: blur(10px);
+  filter: blur(13px);
   transition: transform 0.5s ease;
 }
 
@@ -396,20 +464,88 @@ body.is-open .card-mini { transform: translateY(-72%); }
   content: '';
   position: absolute;
   inset: 30px;
-  background: rgba(var(--shadow-ink), 0.22);
+  background: rgba(var(--shadow-tint), 0.3);
 }
 
 .env-bottom-shadow .env-blur::before {
-  transform: translateY(3px);
-  clip-path: polygon(-4% 104%, 50% 50%, 104% 104%);
+  transform: translate(-6px, 3px);
+  clip-path: polygon(-4% 104%, 48% 43.36%, 48.35% 43%, 48.74% 42.71%, 49.14% 42.5%, 49.57% 42.37%, 50% 42.33%, 50.43% 42.37%, 50.86% 42.5%, 51.26% 42.71%, 51.65% 43%, 52% 43.36%, 104% 104%);
 }
 
 .env-flap-shadow .env-blur::before {
-  transform: translateY(5px);
-  clip-path: polygon(-4% -4%, 104% -4%, 50% 56%);
+  transform: translate(-13px, 11px);
+  background: rgba(var(--shadow-tint), 0.42);
+  clip-path: polygon(-4% -4%, 104% -4%, 51.77% 54.02%, 51.45% 54.32%, 51.11% 54.57%, 50.75% 54.75%, 50.38% 54.86%, 50% 54.89%, 49.62% 54.86%, 49.25% 54.75%, 48.89% 54.57%, 48.55% 54.32%, 48.23% 54.02%);
 }
 
-body.is-open .env-flap-shadow { opacity: 0; }
+/* Depth inside the envelope: the front pocket blocks some light, so the
+   letter is shaded just above the pocket edges. It sits above the letter
+   and below the pocket, inside the envelope only. */
+.env-inner-shadow .env-blur::before {
+  transform: translate(-5px, -6px);
+  clip-path: polygon(0 0, 45.87% 47.71%, 48.04% 45.24%, 48.39% 44.89%, 48.77% 44.61%, 49.16% 44.41%, 49.58% 44.29%, 50% 44.25%, 50.42% 44.29%, 50.84% 44.41%, 51.23% 44.61%, 51.61% 44.89%, 51.96% 45.24%, 54.13% 47.71%, 100% 0, 104% 104%, -4% 104%);
+  background: rgba(var(--shadow-tint), 0.42);
+}
+
+/* Tight contact shadows: a soft dark hairline right along each folded edge. */
+.env-tight .env-blur { filter: blur(2.2px); }
+.env-tight .env-blur::before { background: rgba(var(--shadow-tint), 0.4); }
+.env-tight.env-bottom-shadow .env-blur::before {
+  transform: translate(-1.5px, 1px);
+  clip-path: polygon(-4% 104%, 48.03% 44.86%, 48.38% 44.51%, 48.76% 44.23%, 49.16% 44.03%, 49.58% 43.91%, 50% 43.87%, 50.42% 43.91%, 50.84% 44.03%, 51.24% 44.23%, 51.62% 44.51%, 51.97% 44.86%, 104% 104%);
+}
+.env-tight.env-flap-shadow .env-blur::before {
+  transform: translate(-2px, 2.5px);
+  clip-path: polygon(-4% -4%, 104% -4%, 51.77% 54.21%, 51.46% 54.51%, 51.12% 54.76%, 50.76% 54.94%, 50.38% 55.05%, 50% 55.09%, 49.62% 55.05%, 49.24% 54.94%, 48.88% 54.76%, 48.54% 54.51%, 48.23% 54.21%);
+}
+
+/* The flap's shadow scales from the hinge line at the top of the envelope. */
+.env-flap-shadow .env-blur { transform-origin: 50% 30px; filter: blur(15px); }
+.env-tight.env-flap-shadow .env-blur { filter: blur(2.2px); }
+
+/*
+ * Opening: the shadow is the flap's projection onto the envelope, so it
+ * shortens toward the hinge and slides left, away from the light at the
+ * upper right, as the flap rises, softening as the flap lifts away. It is
+ * gone by the time the flap passes upright. Timed to match flap-open.
+ * Animations outrank the press, hover and drag rules, so a tap can't
+ * leave the shadow behind over the rising card.
+ */
+body.is-open .envelope .env-flap-shadow { animation: flap-shadow-fade 0.7s ease-in-out forwards; }
+body.is-open .envelope .env-flap-shadow .env-blur { animation: flap-shadow-sweep 0.7s linear forwards; }
+
+@keyframes flap-shadow-fade {
+  35%  { opacity: 0.85; }
+  55%  { opacity: 0.6; }
+  80%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* Keyframes follow cos and sin of the flap angle along its eased swing. */
+@keyframes flap-shadow-sweep {
+  12%  { transform: translate(-9px, 0) scaleY(0.94); filter: blur(17px); }
+  25%  { transform: translate(-15px, 0) scaleY(0.78); filter: blur(20px); }
+  38%  { transform: translate(-19px, 0) scaleY(0.58); filter: blur(24px); }
+  50%  { transform: translate(-20px, 0) scaleY(0.42); filter: blur(27px); }
+  65%  { transform: translate(-17px, 0) scaleY(0.26); filter: blur(28px); }
+  80%  { transform: translate(-12px, 0) scaleY(0.1);  filter: blur(28px); }
+  100% { transform: translate(-12px, 0) scaleY(0.05); filter: blur(28px); }
+}
+
+/* The contact line belongs to the flap's resting edge, so it goes first. */
+body.is-open .envelope .env-tight.env-flap-shadow { animation: flap-contact-fade 0.7s ease-out forwards; }
+
+@keyframes flap-contact-fade {
+  20%, 100% { opacity: 0; }
+}
+
+.envelope.is-dragging .env-tight.env-flap-shadow {
+  opacity: clamp(0, 1 - var(--drag, 0) * 5, 1);
+}
+
+/* A drag-open already carried the shadow away with the finger. */
+body.is-open .envelope.drag-opened .env-flap-shadow,
+body.is-open .envelope.drag-opened .env-flap-shadow .env-blur { animation: none; opacity: 0; }
 
 .env-flap {
   left: 0;
@@ -418,8 +554,8 @@ body.is-open .env-flap-shadow { opacity: 0; }
   height: 56%;
   z-index: 4;
   background: var(--flap-face);
-  background-blend-mode: multiply, normal, normal;
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  background-blend-mode: multiply, normal, normal, normal;
+  clip-path: polygon(0 0, 100% 0, 51.77% 96.46%, 51.45% 97.01%, 51.11% 97.45%, 50.75% 97.77%, 50.38% 97.96%, 50% 98.02%, 49.62% 97.96%, 49.25% 97.77%, 48.89% 97.45%, 48.55% 97.01%, 48.23% 96.46%);
   border-radius: 4px 4px 0 0;
   transform-origin: 50% 0;
   transform: rotateX(0deg);
@@ -458,7 +594,7 @@ body.is-open .env-flap { animation: flap-open 0.7s ease-in-out forwards; }
   height: 68px;
   margin: -34px 0 0 -34px;
   transform: rotate(0deg);
-  filter: drop-shadow(0 4px 6px rgba(var(--shadow-ink), 0.3));
+  filter: drop-shadow(-3px 4px 6px rgba(var(--shadow-ink), 0.3));
   transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
@@ -576,8 +712,8 @@ body.is-open .tap-hint {
   background-blend-mode: var(--card-stock-blend);
   border-radius: 7px;
   box-shadow:
-    0 48px 80px -36px rgba(var(--shadow-ink), 0.6),
-    0 14px 30px -14px rgba(var(--shadow-ink), 0.3),
+    -18px 48px 80px -36px rgba(var(--shadow-ink), 0.6),
+    -6px 14px 30px -14px rgba(var(--shadow-ink), 0.3),
     0 2px 6px rgba(var(--shadow-ink), 0.1);
   opacity: 0;
   transform: scale(0.94);
