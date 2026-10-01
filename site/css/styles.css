@@ -908,18 +908,33 @@ body.is-open .text > * {
   line-height: 1.2;
 }
 
+/* "RSVP below" with a bobbing chevron, so guests know there's more to scroll to. */
 .scroll-hint {
   position: absolute;
-  left: 50%;
-  bottom: 1.25rem;
-  width: 44px;
-  height: 44px;
-  margin-left: -22px;
-  display: grid;
-  place-items: center;
+  left: 0;
+  right: 0;
+  bottom: 0.9rem;
+  width: max-content;
+  margin: 0 auto;
+  padding: 0.35rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
   color: var(--ink-soft);
+  text-decoration: none;
   opacity: 0;
   transition: opacity 0.6s ease 2.4s;
+}
+
+.scroll-label {
+  font-family: var(--font-caps);
+  font-size: 0.66rem;
+  letter-spacing: 0.32em;
+  /* Balances the trailing letter-spacing so the label centres over the arrow. */
+  margin-right: -0.32em;
+  text-transform: uppercase;
+  -webkit-text-stroke: 0.18px currentColor;
 }
 
 html.js body.is-closed .scroll-hint,
@@ -932,8 +947,10 @@ html.js body.is-closed .details {
   height: 22px;
 }
 
-body.is-open .scroll-hint {
-  opacity: 1;
+body.is-open .scroll-hint { opacity: 1; }
+
+/* Only the arrow bobs; the label stays still so it's easy to read. */
+body.is-open .scroll-hint svg {
   animation: bob 2s ease-in-out 2.4s infinite;
 }
 
