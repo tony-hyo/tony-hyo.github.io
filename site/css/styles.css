@@ -615,12 +615,24 @@ html.no-js .card {
   height: 100%;
 }
 
+/*
+ * Text layout copies the Canva design exactly. Every line is placed at the
+ * PDF's measured position: `top` is a percentage of the card's height,
+ * sizes are in cqw (percent of the card's width), and each line-height
+ * equals its font's ascent plus descent, so the glyphs land where the PDF
+ * draws them. Letter spacing was solved from the PDF's line widths.
+ */
 .text {
   position: absolute;
   z-index: 1;
-  left: 10.4%;
-  right: 6%;
-  top: 26%;
+  inset: 0;
+}
+
+.text > p {
+  position: absolute;
+  left: 10%;
+  margin: 0;
+  white-space: nowrap;
 }
 
 /*
@@ -666,10 +678,13 @@ body.is-open .text > * {
   -webkit-text-stroke: 0.35px currentColor;
 }
 
+/* The heading covers the card so its three lines can be placed like the
+   others (it also carries the staggered-reveal transform). */
 .headline {
+  position: absolute;
+  inset: 0;
   margin: 0;
   font-weight: 400;
-  line-height: 1;
   text-transform: uppercase;
 }
 
@@ -681,45 +696,62 @@ body.is-open .text > * {
   outline: none;
 }
 
-.headline .word {
+.headline .word,
+.headline .the {
+  position: absolute;
   display: block;
-  font-size: 9.4cqw;
-  letter-spacing: 0.38em;
+  white-space: nowrap;
 }
 
+.headline .word {
+  left: 10%;
+  font-size: 8.61cqw;
+  letter-spacing: 0.455em;
+  line-height: 1.22;
+}
+
+.headline .word:first-child { top: 29.3%; }
+.headline .word:last-child { top: 41.6%; }
+
 .headline .the {
-  display: block;
-  margin: 0.8cqw 0 1cqw 1.1cqw;
+  top: 35.2%;
+  left: 11.9%;
   font-family: var(--font-script);
-  font-size: 6.5cqw;
+  font-size: 8.61cqw;
   letter-spacing: 0;
-  line-height: 1;
+  line-height: 1.2;
   text-transform: none;
 }
 
 .caps {
-  margin: 0;
   font-family: var(--font-caps);
   font-weight: 400;
-  font-size: 2.45cqw;
-  letter-spacing: 0.17em;
-  line-height: 1.95;
   text-transform: uppercase;
 }
 
-.caps.names { margin-top: 6.2cqw; }
+.caps.lede {
+  top: 52.3%;
+  font-size: 2.64cqw;
+  letter-spacing: 0.19em;
+  line-height: 2.015;
+}
 
 /* Old-style numerals, as in the original design: 4 and 7 dip below the line. */
 .date-big {
-  margin: 2.2cqw 0 0;
+  top: 59.9%;
   font-weight: 400;
-  font-size: 10cqw;
-  letter-spacing: 0.1em;
-  line-height: 1;
+  font-size: 9.71cqw;
+  letter-spacing: 0.15em;
+  line-height: 1.21;
   font-variant-numeric: oldstyle-nums;
 }
 
-.caps.venue { margin-top: 5cqw; }
+.caps.venue {
+  top: 68.9%;
+  font-size: 1.99cqw;
+  letter-spacing: 0.19em;
+  line-height: 1.97;
+}
 
 .script-line {
   margin: 0;
@@ -729,9 +761,10 @@ body.is-open .text > * {
 }
 
 .card .closing {
-  margin-top: 3.2cqw;
-  font-size: 8.8cqw;
-  line-height: 0.9;
+  top: 79.2%;
+  font-size: 7.25cqw;
+  letter-spacing: 0.025em;
+  line-height: 1.2;
 }
 
 .scroll-hint {
